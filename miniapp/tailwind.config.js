@@ -1,11 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}", // Add this line to include all relevant files
+    "./src/**/*.{js,jsx,ts,tsx}", // Ensure this is set to the correct path
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        golden: '#FFD700', // Custom golden color
+        black: '#000000',   // Standard black color
+      },
+    },
   },
   plugins: [],
-};
+}
