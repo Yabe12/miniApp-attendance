@@ -1,5 +1,5 @@
 const express = require('express');
-const { registerStudent, attendanceByQr } = require('../controllers/studentController');
+const { registerStudent, attendanceByQr } = require('../controller/studentController');
 const router = express.Router();
 
 // Register student and generate QR code

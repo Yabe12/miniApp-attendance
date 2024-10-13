@@ -1,7 +1,7 @@
 const { google } = require('googleapis');
 const qr = require('qrcode');
 const path = require('path');
-const { clientEmail, privateKey, spreadsheetId } = require('../config/googleSheetsConfig');
+const { clientEmail, privateKey, spreadsheetId } = require('../config/googleSheetConfig');
 
 // Google Sheets API setup
 const auth = new google.auth.JWT(
