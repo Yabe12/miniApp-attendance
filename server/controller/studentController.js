@@ -1,66 +1,77 @@
-const sheets = require('../config/googleSheetConfig');
-const QRCode = require('qrcode');
+const { google } = require('googleapis');
+const qr = require('qrcode');
+const path = require('path');
+const { clientEmail, privateKey, spreadsheetId } = require('../config/googleSheetsConfig');
 
-// Google Sheets Information
-const SPREADSHEET_ID = 'your-spreadsheet-id';
-const SHEET_NAME = 'Students';
+// Google Sheets API setup
+const auth = new google.auth.JWT(
+  clientEmail,
+  null,
+  privateKey,
+  ['https://www.googleapis.com/auth/spreadsheets']
+);
+const sheets = google.sheets({ version: 'v4', auth });
 
-// Register a new student and generate QR code
+// Register student and generate QR code
 exports.registerStudent = async (req, res) => {
   const { fullName, email, telegramUsername, phoneNumber, yearOfCampus } = req.body;
 
   try {
-    // Generate a unique QR code using email or phoneNumber
-    const qrCodeData = await QRCode.toDataURL(email);  // Email used for generating QR code
-
-    // Save student data in Google Sheets
+    // Save the student's information to Google Sheets
     await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:F`,
+      spreadsheetId,
+      range: 'Sheet1!A:E', // Adjust range as needed
       valueInputOption: 'RAW',
       resource: {
-        values: [[fullName, email, telegramUsername, phoneNumber, yearOfCampus, qrCodeData]],
+        values: [[fullName, email, telegramUsername, phoneNumber, yearOfCampus]],
       },
     });
 
-    res.status(201).json({ message: 'Student registered successfully!', qrCode: qrCodeData });
+    // Generate a unique QR code for the student
+    const qrCodeUrl = `${process.env.QR_CODE_BASE_URL}/${fullName}-${Date.now()}`;
+    const qrCodePath = path.join(__dirname, `../qrcodes/${fullName}-${Date.now()}.png`);
+
+    // Generate QR code and save it
+    await qr.toFile(qrCodePath, qrCodeUrl);
+
+    res.status(201).json({
+      message: 'Student registered successfully!',
+      qrCodeUrl,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error registering student.' });
+    console.error('Error registering student:', error);
+    res.status(500).json({ error: 'Failed to register student' });
   }
 };
 
-// Record attendance based on scanned QR code
-exports.markAttendance = async (req, res) => {
-  const { scannedQR } = req.body;
-
+// Attendance by scanning QR code
+exports.attendanceByQr = async (req, res) => {
+  const qrCodeData = req.params.qrCodeData;
   try {
-    // Fetch students from Google Sheets
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!A:F`,
+    // Check student in Google Sheets based on QR code data
+    const { data } = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'Sheet1!A:E',
     });
 
-    const students = response.data.values;
-    const student = students.find(row => row[5] === scannedQR);  // Compare QR code data
-
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found.' });
+    const studentRow = data.values.find(row => row[0] === qrCodeData);
+    if (!studentRow) {
+      return res.status(404).json({ error: 'Student not found' });
     }
 
-    // Mark attendance in a new sheet or column (assuming column G is attendance)
+    // Mark attendance in Google Sheets
     await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEET_NAME}!G:G`,
+      spreadsheetId,
+      range: 'Sheet1!F:F', // Assuming column F is for attendance
       valueInputOption: 'RAW',
       resource: {
-        values: [[new Date().toLocaleString()]],  // Record attendance time
+        values: [[new Date().toLocaleString()]],
       },
     });
 
-    res.status(200).json({ message: 'Attendance recorded successfully.' });
+    res.json({ message: 'Attendance recorded successfully!' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error recording attendance.' });
+    console.error('Error recording attendance:', error);
+    res.status(500).json({ error: 'Failed to record attendance' });
   }
 };

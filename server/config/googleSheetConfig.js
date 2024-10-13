@@ -1,13 +1,5 @@
-const { google } = require('googleapis');
-const keys = require('./path-to-your-google-credentials.json');  // Download the credentials JSON from Google Cloud
-
-const auth = new google.auth.JWT(
-  keys.client_email,
-  null,
-  keys.private_key,
-  ['https://www.googleapis.com/auth/spreadsheets']  // Google Sheets scope
-);
-
-const sheets = google.sheets({ version: 'v4', auth });
-
-module.exports = sheets;
+module.exports = {
+  clientEmail: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+  privateKey: process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix newline issue with private key
+  spreadsheetId: process.env.GOOGLE_SHEETS_SPREADSHEET_ID,
+};

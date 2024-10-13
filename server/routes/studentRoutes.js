@@ -1,11 +1,11 @@
 const express = require('express');
+const { registerStudent, attendanceByQr } = require('../controllers/studentController');
 const router = express.Router();
-const { registerStudent, markAttendance } = require('../controllers/studentController');
 
-// POST /api/register
+// Register student and generate QR code
 router.post('/register', registerStudent);
 
-// POST /api/attendance
-router.post('/attendance', markAttendance);
+// Scan QR code for attendance
+router.get('/attendance/:qrCodeData', attendanceByQr);
 
 module.exports = router;

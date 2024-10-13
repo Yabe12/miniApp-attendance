@@ -1,0 +1,47 @@
+{
+  "info": {
+    "name": "Student Registration API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register a Student",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"johndoe@example.com\",\n  \"telegramUsername\": \"@johndoe\",\n  \"phoneNumber\": \"+1234567890\",\n  \"yearOfCampus\": 3\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/students/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "students", "register"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Mark Attendance by QR Code",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/api/students/attendance/John-Doe-1632193076721",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "students", "attendance", "John-Doe-1632193076721"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
