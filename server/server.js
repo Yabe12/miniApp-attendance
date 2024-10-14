@@ -1,19 +1,19 @@
-require('dotenv').config();
 const express = require('express');
-const { google } = require('googleapis');
-const bodyParser = require('body-parser');
-const qr = require('qrcode');
-const path = require('path');
+const dotenv = require('dotenv');
+const studentRoutes = require('./routes/studentRoutes');
+
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+// Middleware to parse incoming JSON data
+app.use(express.json());
 
-// Setup routes and controllers
-const studentRoutes = require('./routes/studentRoutes');
+// Routes
 app.use('/api/students', studentRoutes);
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
