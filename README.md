@@ -1,1 +1,1 @@
-# miniApp-attendance
+# miniApp
